@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+  mariadb:
+    image: mariadb:11.1
+    container_name: mariadb_crud
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: crud_db
+      MYSQL_USER: crud_user
+      MYSQL_PASSWORD: crudpass
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db-data:/var/lib/mysql
+      - ./db-init:/docker-entrypoint-initdb.d
+    networks:
+      - crud_net
+
+  backend:
+    build:
+      context: ./backend
+    container_name: nest_backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      - mariadb
+    networks:
+      - crud_net
+
+networks:
+  crud_net:
